@@ -1025,15 +1025,16 @@ input:focus-visible,
 
 .deck-savebar {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
   margin-top: 8px;
 }
 
 .deck-savebar .btn {
   min-height: 31px;
-  padding: 0 8px;
-  font-size: 9.5px;
+  padding: 0 6px;
+  font-size: 9px;
+  white-space: nowrap;
 }
 
 .deck-savebar .btn .icon {
@@ -1574,7 +1575,7 @@ input:focus-visible,
 
 #seekerSheet { z-index: 110; }
 #filterSheet, #terrainSheet, #detailSheet { z-index: 120; }
-#savedDecksSheet { z-index: 130; }
+#savedDecksSheet, #exportSheet { z-index: 130; }
 #confirmOverlay { z-index: 200; align-items: center; padding: 16px; }
 
 .sheet-panel {
@@ -2013,6 +2014,89 @@ input:focus-visible,
   text-align: center;
 }
 
+/* ---------- Export deck ---------- */
+
+.export-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #0c1015;
+}
+
+.export-tab {
+  min-height: 32px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 750;
+}
+.export-tab:hover { color: var(--text); }
+.export-tab.active {
+  border-color: var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.export-panel { margin-top: 11px; }
+.export-panel[hidden] { display: none; }
+
+.export-desc {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.export-preview {
+  max-height: 40vh;
+  max-height: 40dvh;
+  overflow: auto;
+  margin: 0;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #0a0d12;
+  color: #d8dde6;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.export-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.export-formatted-preview {
+  max-height: 40vh;
+  max-height: 40dvh;
+  overflow: auto;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #e7e0d3;
+  overscroll-behavior: contain;
+}
+
+.export-empty {
+  padding: 22px 14px;
+  color: var(--muted);
+  font-size: 10.5px;
+  line-height: 1.5;
+  text-align: center;
+}
+
 /* ---------- Confirm dialog ---------- */
 
 .confirm-panel {
@@ -2180,6 +2264,257 @@ input:focus-visible,
 }
 
 </style>
+<style id="deckSheetStyles">
+/* ---------- Print-ready formatted deck sheet ---------- */
+
+.deck-sheet {
+  width: 190mm;
+  max-width: 100%;
+  margin: 18px auto;
+  padding: 13mm 12mm 11mm;
+  background: #fffdf8;
+  color: #1e1913;
+  border: 1px solid #d9cdb7;
+  border-radius: 4px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.deck-sheet * { box-sizing: border-box; }
+
+.ds-brand {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid #d9cdb7;
+  color: #8a7556;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.ds-brand strong {
+  color: #3b2d1e;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+}
+
+.ds-head { padding: 14px 0 0; }
+.ds-head h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 31px;
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+.ds-sub {
+  margin: 5px 0 0;
+  color: #7b6a52;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+}
+
+.ds-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+}
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid #d9cdb7;
+  border-radius: 999px;
+  background: #f8f2e7;
+  color: #5d4c36;
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ds-badge.ok {
+  border-color: #b7d2b9;
+  background: #edf5ec;
+  color: #37633f;
+}
+.ds-badge.warn {
+  border-color: #e2bdb4;
+  background: #fbeeeb;
+  color: #8c3d31;
+}
+
+.ds-command {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin: 14px 0 16px;
+}
+.ds-command-item {
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid #ddd1bd;
+  border-radius: 5px;
+  background: #faf5eb;
+}
+.ds-command-item span {
+  display: block;
+  margin-bottom: 2px;
+  color: #8a7556;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ds-command-item strong {
+  display: block;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+}
+.ds-command-item strong.missing {
+  color: #a39177;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.ds-zone + .ds-zone { margin-top: 15px; }
+.ds-zone-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 4px;
+  border-bottom: 2px solid #2d241a;
+}
+.ds-zone-head h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.1;
+}
+.ds-zone-head > span {
+  color: #8a7556;
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ds-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px 20px;
+  margin-top: 9px;
+}
+.ds-group { break-inside: avoid; }
+.ds-group h3 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 3px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #e7decd;
+  color: #7b6548;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.ds-group h3 span {
+  color: #a39177;
+  font-size: 7.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ds-row {
+  display: grid;
+  grid-template-columns: 23px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2.5px 0;
+  border-bottom: 1px dotted #eee6d8;
+  break-inside: avoid;
+}
+.ds-row:last-child { border-bottom: 0; }
+.ds-row .qty {
+  color: #9a5f26;
+  font-size: 9.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.ds-row .name {
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.ds-row .meta {
+  color: #9a8b76;
+  font-size: 7.5px;
+  line-height: 1.2;
+  text-align: right;
+  white-space: nowrap;
+}
+.ds-empty {
+  margin: 9px 0 0;
+  color: #a39177;
+  font-size: 9.5px;
+  font-style: italic;
+}
+
+.ds-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 7px;
+  border-top: 1px solid #d9cdb7;
+  color: #9a8b76;
+  font-size: 7.5px;
+  letter-spacing: 0.04em;
+}
+
+/* Preview inside the app uses the same sheet at the available width. */
+.export-formatted-preview .deck-sheet {
+  width: 100%;
+  margin: 0;
+  padding: 18px 16px;
+  border-radius: 7px;
+  box-shadow: none;
+}
+
+@media (max-width: 620px) {
+  .export-formatted-preview .ds-groups { grid-template-columns: minmax(0, 1fr); }
+  .export-formatted-preview .ds-command { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media print {
+  .deck-sheet {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .ds-group,
+  .ds-row { break-inside: avoid; }
+  .ds-foot { margin-top: 14px; }
+}
+
+</style>
 </head>
 <body>
 <div class="app">
@@ -2305,6 +2640,44 @@ input:focus-visible,
   </div>
 </div>
 
+<div class="overlay" id="exportSheet" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="exportSheetTitle">
+  <div class="sheet-panel sheet-medium">
+    <div class="sheet-head">
+      <div>
+        <h2 id="exportSheetTitle">Export deck</h2>
+        <p>Copy the list or save a formatted sheet.</p>
+      </div>
+      <button class="icon-btn" type="button" data-close="exportSheet" aria-label="Close">
+        <span data-icon="close" aria-hidden="true"></span>
+      </button>
+    </div>
+    <div class="sheet-body">
+      <div class="export-switch" role="tablist" aria-label="Export format">
+        <button type="button" class="export-tab active" role="tab" aria-selected="true" data-export-view="simple">Simple list</button>
+        <button type="button" class="export-tab" role="tab" aria-selected="false" data-export-view="formatted">Formatted list</button>
+      </div>
+
+      <div class="export-panel" data-export-panel="simple">
+        <p class="export-desc">A plain deck list grouped into Main Deck and Side Deck, using the same format as the official builder.</p>
+        <pre class="export-preview" id="exportSimplePreview"></pre>
+        <div class="export-actions">
+          <button type="button" class="btn btn-primary btn-small" data-export-copy="simple">Copy list</button>
+          <button type="button" class="btn btn-ghost btn-small" data-export-download="simple">Download .txt</button>
+        </div>
+      </div>
+
+      <div class="export-panel" data-export-panel="formatted" hidden>
+        <p class="export-desc">A styled sheet grouped by card type, ready to print or save as a PDF.</p>
+        <div class="export-formatted-preview" id="exportFormattedPreview"></div>
+        <div class="export-actions">
+          <button type="button" class="btn btn-primary btn-small" data-export-print>Print / Save PDF</button>
+          <button type="button" class="btn btn-ghost btn-small" data-export-download="formatted">Download .html</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="filterSheet" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="filterSheetTitle">
   <div class="sheet-panel sheet-small">
     <div class="sheet-head">
@@ -2402,6 +2775,7 @@ const CARDS = [{"id":"adrenaline-rush","name":"Adrenaline Rush","type":"Spell","
     cards: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="13" height="16" rx="2"></rect><path d="M8 3h11a2 2 0 0 1 2 2v13"></path><path d="M7 10h5M7 14h5"></path></svg>',
     deck: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>',
     save: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"></path><path d="M7 3v6h8V3"></path><path d="M7 21v-8h10v8"></path></svg>',
+    download: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M4 21h16"></path></svg>',
     folder: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path></svg>',
     trash: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="m19 6-1 14H6L5 6"></path><path d="M10 11v5M14 11v5"></path></svg>',
     alert: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.7 2.8 17a2 2 0 0 0 1.7 3h15a2 2 0 0 0 1.7-3L13.7 3.7a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4M12 17h.01"></path></svg>'
@@ -2834,6 +3208,324 @@ const CARDS = [{"id":"adrenaline-rush","name":"Adrenaline Rush","type":"Spell","
         toast(`Deleted “${saved.name}”.`);
       }
     });
+  }
+
+  const EXPORT_TYPE_ORDER = ['Unit', 'Spell', 'Attachment', 'Other'];
+  const EXPORT_TYPE_LABELS = { Unit: 'Units', Spell: 'Spells', Attachment: 'Attachments', Other: 'Other' };
+  const PRINT_BASE_CSS = `
+    html, body { margin: 0; padding: 0; background: #e7e0d3; }
+    body { padding-bottom: 24px; }
+    .ds-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+      background: rgba(231, 224, 211, 0.94);
+      backdrop-filter: blur(8px);
+    }
+    .ds-toolbar button {
+      min-height: 36px;
+      padding: 0 14px;
+      border: 1px solid #b9a98f;
+      border-radius: 8px;
+      background: #fffdf8;
+      color: #3b2d1e;
+      font: 700 11px/1 "Segoe UI", system-ui, sans-serif;
+      cursor: pointer;
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .ds-toolbar { display: none; }
+    }
+    @page { size: A4; margin: 12mm; }
+  `;
+
+  function buildExportGroups(zone) {
+    const grouped = new Map(EXPORT_TYPE_ORDER.map(key => [key, []]));
+    Object.keys(zone || {}).forEach(id => {
+      const quantity = Number(zone[id]) || 0;
+      const card = CARD_BY_ID[id];
+      if (!card || quantity <= 0) return;
+      const key = EXPORT_TYPE_ORDER.includes(card.type) ? card.type : 'Other';
+      grouped.get(key).push({ card, quantity });
+    });
+    return EXPORT_TYPE_ORDER
+      .map(key => ({
+        key,
+        items: grouped.get(key).sort((a, b) => a.card.name.localeCompare(b.card.name))
+      }))
+      .filter(group => group.items.length > 0);
+  }
+
+  function buildSimpleDeckList() {
+    const sections = [];
+    const command = [getSeeker(), getLegacy(), getTerrain()].filter(Boolean);
+    if (command.length) {
+      sections.push(command.map(card => `1x ${card.name}`).join('\n'));
+    }
+
+    const mainLines = [];
+    buildExportGroups(state.main).forEach(group => {
+      group.items.forEach(({ card, quantity }) => mainLines.push(`${quantity}x ${card.name}`));
+    });
+    if (mainLines.length) sections.push(`Main Deck\n${mainLines.join('\n')}`);
+
+    const sideLines = [];
+    buildExportGroups(state.side).forEach(group => {
+      group.items.forEach(({ card, quantity }) => sideLines.push(`${quantity}x ${card.name}`));
+    });
+    if (sideLines.length) sections.push(`Side Deck\n${sideLines.join('\n')}`);
+
+    return sections.join('\n\n');
+  }
+
+  function exportCardMeta(card) {
+    const parts = [];
+    if (['Basic', 'Elite', 'Unique', 'Legendary'].includes(card.rank)) parts.push(card.rank);
+    if (card.subtype) parts.push(card.subtype);
+    if (card.cost !== null && card.cost !== undefined && card.cost !== '') {
+      parts.push(`${card.cost} echo`);
+    }
+    return parts.join(' · ');
+  }
+
+  function exportGroupHTML(group) {
+    const total = group.items.reduce((count, item) => count + item.quantity, 0);
+    const rows = group.items.map(({ card, quantity }) => {
+      const meta = exportCardMeta(card);
+      return `<div class="ds-row">
+        <span class="qty">${quantity}×</span>
+        <span class="name">${esc(card.name)}</span>
+        ${meta ? `<span class="meta">${esc(meta)}</span>` : '<span></span>'}
+      </div>`;
+    }).join('');
+    return `<div class="ds-group">
+      <h3>${EXPORT_TYPE_LABELS[group.key]}<span>${total}</span></h3>
+      <div class="ds-rows">${rows}</div>
+    </div>`;
+  }
+
+  function exportZoneHTML(title, zone, emptyText) {
+    const groups = buildExportGroups(zone);
+    const total = sum(zone);
+    const contents = groups.length
+      ? `<div class="ds-groups">${groups.map(exportGroupHTML).join('')}</div>`
+      : `<p class="ds-empty">${esc(emptyText)}</p>`;
+    return `<section class="ds-zone">
+      <div class="ds-zone-head">
+        <h2>${esc(title)}</h2>
+        <span>${total} ${total === 1 ? 'card' : 'cards'}</span>
+      </div>
+      ${contents}
+    </section>`;
+  }
+
+  function buildFormattedDeckBodyHTML() {
+    const seeker = getSeeker();
+    const issues = getIssues();
+    const mainCount = sum(state.main);
+    const sideCount = sum(state.side);
+    const legal = Boolean(seeker) && issues.length === 0;
+    const title = seeker ? seeker.name : 'Untitled deck';
+    const subtitle = seeker ? factionFull(seeker.factions) : 'No Seeker selected';
+    const issueText = issues.length === 1 ? '1 issue' : `${issues.length} issues`;
+    const statusText = !seeker ? 'No Seeker' : (legal ? 'Legal' : issueText);
+    const statusClass = legal ? 'ok' : 'warn';
+    const generated = new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+
+    const command = [
+      ['Seeker', seeker],
+      ['Legacy', getLegacy()],
+      ['Terrain', getTerrain()]
+    ].map(([label, card]) => `
+      <div class="ds-command-item">
+        <span>${label}</span>
+        <strong class="${card ? '' : 'missing'}">${card ? esc(card.name) : 'Not selected'}</strong>
+      </div>`).join('');
+
+    return `<article class="deck-sheet">
+      <div class="ds-brand"><strong>Malediction</strong><span>Deck list</span></div>
+      <header class="ds-head">
+        <h1>${esc(title)}</h1>
+        <p class="ds-sub">${esc(subtitle)}</p>
+        <div class="ds-badges">
+          <span class="ds-badge">Main ${mainCount}</span>
+          <span class="ds-badge">Side ${sideCount}</span>
+          <span class="ds-badge ${statusClass}">${esc(statusText)}</span>
+        </div>
+      </header>
+      <div class="ds-command">${command}</div>
+      ${exportZoneHTML('Main Deck', state.main, 'No cards in the main deck.')}
+      ${exportZoneHTML('Side Deck', state.side, 'No side deck.')}
+      <footer class="ds-foot">
+        <span>Generated ${esc(generated)}</span>
+        <span>Malediction Deck Builder</span>
+      </footer>
+    </article>`;
+  }
+
+  function getDeckSheetCSS() {
+    return $('#deckSheetStyles')?.textContent || '';
+  }
+
+  function buildFormattedDeckDocument() {
+    const seeker = getSeeker();
+    const title = `${seeker ? seeker.name : 'Untitled deck'} — Malediction deck list`;
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(title)}</title>
+<style>${PRINT_BASE_CSS}${getDeckSheetCSS()}</style>
+</head>
+<body>
+<div class="ds-toolbar">
+  <button type="button" onclick="window.print()">Print / Save PDF</button>
+  <button type="button" onclick="window.close()">Close</button>
+</div>
+${buildFormattedDeckBodyHTML()}
+</body>
+</html>`;
+  }
+
+  function exportFileStem() {
+    const seeker = getSeeker();
+    const base = seeker ? seeker.name : 'malediction-deck';
+    return base
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'deck';
+  }
+
+  function downloadTextFile(filename, text, mime = 'text/plain;charset=utf-8') {
+    const blob = new Blob([text], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1200);
+  }
+
+  function copyPlainText(text, successMessage) {
+    const value = String(text || '');
+    if (!value.trim()) {
+      toast('Nothing to export yet.');
+      return;
+    }
+    const fallback = () => {
+      const input = document.createElement('textarea');
+      input.value = value;
+      input.setAttribute('readonly', '');
+      input.style.cssText = 'position:fixed;left:-9999px;top:0;';
+      document.body.appendChild(input);
+      input.select();
+      try {
+        document.execCommand('copy');
+        toast(successMessage);
+      } catch (error) {
+        toast('Could not copy to the clipboard.');
+      }
+      input.remove();
+    };
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      navigator.clipboard.writeText(value)
+        .then(() => toast(successMessage))
+        .catch(fallback);
+      return;
+    }
+    fallback();
+  }
+
+  function setExportView(view) {
+    const next = view === 'formatted' ? 'formatted' : 'simple';
+    $$('[data-export-view]', $('#exportSheet')).forEach(button => {
+      const active = button.dataset.exportView === next;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    $$('[data-export-panel]', $('#exportSheet')).forEach(panel => {
+      panel.hidden = panel.dataset.exportPanel !== next;
+    });
+  }
+
+  function renderExportSheet() {
+    const simple = buildSimpleDeckList();
+    const hasContent = Boolean(simple.trim());
+    const preview = $('#exportSimplePreview');
+    if (preview) preview.textContent = hasContent ? simple : 'Add cards to your deck to export a list.';
+    const formatted = $('#exportFormattedPreview');
+    if (formatted) {
+      formatted.innerHTML = hasContent
+        ? buildFormattedDeckBodyHTML()
+        : '<div class="export-empty">Add cards to your deck to export a list.</div>';
+    }
+    $$('[data-export-copy], [data-export-download], [data-export-print]', $('#exportSheet')).forEach(button => {
+      button.disabled = !hasContent;
+    });
+  }
+
+  function openExportSheet() {
+    renderExportSheet();
+    setExportView('simple');
+    openSheet('exportSheet');
+  }
+
+  function downloadDeckExport(format) {
+    if (format === 'formatted') {
+      downloadTextFile(
+        `${exportFileStem()}-deck.html`,
+        buildFormattedDeckDocument(),
+        'text/html;charset=utf-8'
+      );
+      toast('Formatted deck sheet downloaded.');
+      return;
+    }
+    const text = buildSimpleDeckList();
+    if (!text.trim()) {
+      toast('Nothing to export yet.');
+      return;
+    }
+    downloadTextFile(`${exportFileStem()}-deck.txt`, text);
+    toast('Simple deck list downloaded.');
+  }
+
+  function printFormattedDeck() {
+    const simple = buildSimpleDeckList();
+    if (!simple.trim()) {
+      toast('Nothing to export yet.');
+      return;
+    }
+    const html = buildFormattedDeckDocument();
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      downloadTextFile(`${exportFileStem()}-deck.html`, html, 'text/html;charset=utf-8');
+      toast('Pop-up blocked. The formatted sheet was downloaded instead.');
+      return;
+    }
+    printWindow.document.open();
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      try {
+        if (!printWindow.closed) printWindow.print();
+      } catch (error) {
+        // The sheet remains open with its own Print button if auto-print is blocked.
+      }
+    }, 450);
   }
 
   function renderHeader() {
@@ -3445,8 +4137,9 @@ const CARDS = [{"id":"adrenaline-rush","name":"Adrenaline Rush","type":"Spell","
         </div>
       </div>
       <div class="deck-savebar">
-        <button type="button" class="btn btn-ghost btn-small" data-save-deck>${ICONS.save} Save deck</button>
-        <button type="button" class="btn btn-ghost btn-small" data-open-saves>${ICONS.folder} Saved decks<span class="save-count">${savedDecks.length}</span></button>
+        <button type="button" class="btn btn-ghost btn-small" data-save-deck title="Save this deck">${ICONS.save} Save deck</button>
+        <button type="button" class="btn btn-ghost btn-small" data-export-deck title="Export this deck list">${ICONS.download} Export</button>
+        <button type="button" class="btn btn-ghost btn-small" data-open-saves title="Open saved decks" aria-label="Open saved decks">${ICONS.folder} Saved<span class="save-count">${savedDecks.length}</span></button>
       </div>
       <div class="deck-tools">
         <span class="deck-rule">Basic 3 · Elite 2 · Unique 1</span>
@@ -3961,6 +4654,11 @@ const CARDS = [{"id":"adrenaline-rush","name":"Adrenaline Rush","type":"Spell","
       openSavedDecksSheet();
       return;
     }
+    const exportDeckButton = event.target.closest('[data-export-deck]');
+    if (exportDeckButton) {
+      openExportSheet();
+      return;
+    }
     const clear = event.target.closest('[data-clear-deck]');
     if (clear) {
       clearDeck();
@@ -4095,6 +4793,28 @@ const CARDS = [{"id":"adrenaline-rush","name":"Adrenaline Rush","type":"Spell","
       if (event.target.id === 'savedDeckName' && event.key === 'Enter') {
         event.preventDefault();
         saveCurrentDeck(event.target.value || '');
+      }
+    });
+
+    $('#exportSheet').addEventListener('click', event => {
+      const tab = event.target.closest('[data-export-view]');
+      if (tab) {
+        setExportView(tab.dataset.exportView);
+        return;
+      }
+      const copy = event.target.closest('[data-export-copy]');
+      if (copy) {
+        copyPlainText(buildSimpleDeckList(), 'Simple deck list copied.');
+        return;
+      }
+      const download = event.target.closest('[data-export-download]');
+      if (download) {
+        downloadDeckExport(download.dataset.exportDownload);
+        return;
+      }
+      const print = event.target.closest('[data-export-print]');
+      if (print) {
+        printFormattedDeck();
       }
     });
 
@@ -4279,6 +4999,11 @@ const CARDS = [{"id":"adrenaline-rush","name":"Adrenaline Rush","type":"Spell","
     loadSavedDeck,
     deleteSavedDeck,
     openSavedDecksSheet,
+    buildSimpleDeckList,
+    buildFormattedDeckDocument,
+    openExportSheet,
+    downloadDeckExport,
+    printFormattedDeck,
     navigateDetail
   };
 

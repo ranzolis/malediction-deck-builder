@@ -1,28 +1,18 @@
-
 {
-  "id": "./",
   "name": "Malediction Deck Builder",
-  "short_name": "Malediction",
-  "description": "Build, manage and share your Malediction decks.",
-  "start_url": "./malediction-deck-builder.html",
+  "short_name": "MDB",
+  "description": "Deck builder para Malediction, com suporte offline.",
+  "lang": "en",
+  "start_url": "./",
   "scope": "./",
+  "id": "./",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#111111",
-  "theme_color": "#111111",
-  "categories": ["games", "entertainment"],
+  "background_color": "#0b0d10",
+  "theme_color": "#0b0d10",
   "icons": [
-    {
-      "src": "./icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }

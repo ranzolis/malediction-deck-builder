@@ -3,7 +3,7 @@
   "name": "Malediction Deck Builder",
   "short_name": "Malediction",
   "description": "Malediction Deck Builder - Build, manage and share your decks.",
-  "start_url": "./",
+  "start_url": "./malediction-deck-builder.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

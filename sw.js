@@ -1,13 +1,10 @@
-const CACHE_NAME = "malediction-pwa-v1";
+const CACHE_NAME = "malediction-pwa-v2";
 
 const APP_FILES = [
   "./",
   "./index.html",
-  "./manifest.json",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/apple-touch-icon.png",
-  "./malediction-deck-builder.html"
+  "./malediction-deck-builder.html",
+  "./manifest.json"
 ];
 
 // Instalação

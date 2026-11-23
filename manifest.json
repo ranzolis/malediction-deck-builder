@@ -1,18 +1,16 @@
+
 {
   "id": "./",
   "name": "Malediction Deck Builder",
   "short_name": "Malediction",
-  "description": "Malediction Deck Builder - Build, manage and share your decks.",
+  "description": "Build, manage and share your Malediction decks.",
   "start_url": "./malediction-deck-builder.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#111111",
   "theme_color": "#111111",
-  "categories": [
-    "games",
-    "entertainment"
-  ],
+  "categories": ["games", "entertainment"],
   "icons": [
     {
       "src": "./icons/icon-192.png",

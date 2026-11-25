@@ -1657,6 +1657,14 @@ input:focus-visible,
   gap: 7px;
 }
 
+.seeker-cell {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+.seeker-cell .seeker-tile { flex: 1 1 auto; width: 100%; }
+.seeker-cell .seeker-allow { padding-right: 20px; }
+
 .seeker-tile {
   position: relative;
   min-width: 0;
@@ -1715,6 +1723,30 @@ input:focus-visible,
 }
 
 .seeker-tile.current .seeker-tile-name { padding-right: 58px; }
+
+.seeker-peek {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: rgba(10, 12, 16, 0.9);
+  color: var(--muted);
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.seeker-peek:hover {
+  border-color: rgba(95, 181, 111, 0.6);
+  background: rgba(95, 181, 111, 0.18);
+  color: var(--text);
+}
+.seeker-peek .icon { width: 13px; height: 13px; }
 
 .seeker-current {
   position: absolute;
@@ -3438,6 +3470,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
   const ICONS = {
     search: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path></svg>',
     filter: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16"></path><path d="M7 12h10"></path><path d="M10 18h4"></path></svg>',
+    eye: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 6.5 12 6.5 21.5 12 21.5 12 18 17.5 12 17.5 2.5 12 2.5 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg>',
     close: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>',
     plus: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>',
     minus: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg>',
@@ -3589,6 +3622,9 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
       if (difference) return difference;
     } else if (state.filters.sort === 'type') {
       const difference = (TYPE_ORDER[a.type] ?? 9) - (TYPE_ORDER[b.type] ?? 9);
+      if (difference) return difference;
+    } else if (state.filters.sort === 'cost') {
+      const difference = (a.cost ?? 99) - (b.cost ?? 99);
       if (difference) return difference;
     }
     return a.name.localeCompare(b.name);
@@ -4855,19 +4891,27 @@ ${buildFormattedDeckBodyHTML()}
         ${label}<span class="chip-count">${count}</span>
       </button>`).join('');
     const seekers = SEEKERS.filter(seeker => state.seekerFilter === 'all' || seeker.factions.includes(state.seekerFilter));
-    const tiles = seekers.map(seeker => `
-      <button type="button" class="seeker-tile ${state.seekerId === seeker.id ? 'current' : ''}" data-seeker-id="${seeker.id}" style="--faction-color:${factionColor(seeker.factions)}">
-        <img class="seeker-img" src="${imgSrc(seeker)}" alt="">
-        <span class="seeker-tile-info">
-          <span class="seeker-tile-name">${esc(seeker.name)}</span>
-          <span class="pips">${factionPips(seeker.factions, true)}</span>
-          <span class="seeker-allow">${esc(seekerAllowText(seeker))}</span>
-        </span>
-        ${state.seekerId === seeker.id ? '<span class="seeker-current">Current</span>' : ''}
-      </button>`).join('');
+    const tiles = seekers.map(seeker => {
+      const legacy = CARD_BY_ID[seeker.legacyId];
+      const isCurrent = state.seekerId === seeker.id;
+      const previewLabel = `Preview ${seeker.name} and ${legacy ? legacy.name : 'Legacy'}`;
+      return `
+      <div class="seeker-cell">
+        <button type="button" class="seeker-tile ${isCurrent ? 'current' : ''}" data-seeker-id="${seeker.id}" style="--faction-color:${factionColor(seeker.factions)}">
+          <img class="seeker-img" src="${imgSrc(seeker)}" alt="">
+          <span class="seeker-tile-info">
+            <span class="seeker-tile-name">${esc(seeker.name)}</span>
+            <span class="pips">${factionPips(seeker.factions, true)}</span>
+            <span class="seeker-allow">${esc(seekerAllowText(seeker))}</span>
+          </span>
+          ${isCurrent ? '<span class="seeker-current">Current</span>' : ''}
+        </button>
+        <button type="button" class="seeker-peek" data-seeker-preview="${seeker.id}" title="${esc(previewLabel)}" aria-label="${esc(previewLabel)}">${ICONS.eye}</button>
+      </div>`;
+    }).join('');
     const browseLabel = state.seekerId ? 'Keep current Seeker' : 'Browse cards without a Seeker';
     $('#seekerSheetBody').innerHTML = `
-      <p class="seeker-note">Your Seeker's faction identity locks the card pool. Colorless cards are always legal. Mono-faction Seekers can use their faction and colorless cards. Dual-faction Seekers can use cards from either of their factions, including cards bearing both sigils.</p>
+      <p class="seeker-note">Your Seeker's faction identity locks the card pool. Colorless cards are always legal. Mono-faction Seekers can use their faction and colorless cards. Dual-faction Seekers can use cards from either of their factions, including cards bearing both sigils. Tap the eye on a Seeker to preview their card and Legacy before choosing.</p>
       <div class="seeker-filter">${chips}</div>
       <div class="seeker-grid">${tiles}</div>
       <div class="seeker-browse"><button type="button" class="btn btn-ghost btn-small" data-browse-seekers>${browseLabel}</button></div>`;
@@ -4888,7 +4932,7 @@ ${buildFormattedDeckBodyHTML()}
       conclave: FACTIONS.conclave.short
     };
     const rankOptions = [['all', 'All'], ['Basic', 'Basic'], ['Elite', 'Elite'], ['Unique', 'Unique']];
-    const sortOptions = [['name', 'Name A–Z'], ['rank', 'Rank'], ['type', 'Type']];
+    const sortOptions = [['name', 'Name A–Z'], ['cost', 'Cost'], ['rank', 'Rank'], ['type', 'Type']];
     const options = (values, labels, active, attribute) => values.map(value => `
       <button type="button" class="filter-option ${active === value ? 'active' : ''}" ${attribute}="${value}">${labels[value]}</button>`).join('');
 
@@ -4971,8 +5015,18 @@ ${buildFormattedDeckBodyHTML()}
       note = '<p class="detail-note">Shared relic. It is not part of your 30–50 card deck and does not count toward copy limits.</p>';
     } else if (card.type === 'Seeker') {
       const legacy = CARD_BY_ID[card.legacyId];
+      const isCurrent = state.seekerId === card.id;
       copyLine = `<div class="detail-copy"><span>Legacy</span><strong>${legacy ? esc(legacy.name) : '—'}</strong></div>`;
       note = '<p class="detail-note">Seeker. Your faction identity locks the card pool. The matching Legacy is added automatically.</p>';
+      actions = `<div class="detail-actions">${legacy ? `<button type="button" class="btn btn-ghost" data-detail-open="${legacy.id}">View Legacy</button>` : ''}<button type="button" class="btn ${isCurrent ? 'btn-ghost' : 'btn-primary'}" data-detail-choose-seeker="${card.id}" ${isCurrent ? 'disabled' : ''}>${isCurrent ? 'Current Seeker' : 'Choose this Seeker'}</button></div>`;
+    } else if (card.type === 'Legacy') {
+      const owner = SEEKERS.find(seeker => seeker.legacyId === card.id);
+      const isCurrent = owner && state.seekerId === owner.id;
+      copyLine = `<div class="detail-copy"><span>Legacy of</span><strong>${owner ? esc(owner.name) : '—'}</strong></div>`;
+      note = '<p class="detail-note">Legacy. It is added automatically with its Seeker and does not count toward your 30–50 card deck.</p>';
+      if (owner) {
+        actions = `<div class="detail-actions"><button type="button" class="btn btn-ghost" data-detail-open="${owner.id}">View Seeker</button><button type="button" class="btn ${isCurrent ? 'btn-ghost' : 'btn-primary'}" data-detail-choose-seeker="${owner.id}" ${isCurrent ? 'disabled' : ''}>${isCurrent ? 'Current Seeker' : `Choose ${esc(owner.name)}`}</button></div>`;
+      }
     } else {
       copyLine = '<div class="detail-copy"><span>Deck status</span><strong>Command card</strong></div>';
       note = '<p class="detail-note">Command card. It is part of your warband but does not count toward your 30–50 card main deck.</p>';
@@ -5009,6 +5063,18 @@ ${buildFormattedDeckBodyHTML()}
 
   function renderDetailIfOpen() {
     if ($('#detailSheet').classList.contains('open') && state.detailCardId) renderDetail();
+  }
+
+  function detailOrderFor(card) {
+    if (!card) return [];
+    if (card.type === 'Seeker' && card.legacyId && CARD_BY_ID[card.legacyId]) {
+      return [card.id, card.legacyId];
+    }
+    if (card.type === 'Legacy') {
+      const owner = SEEKERS.find(seeker => seeker.legacyId === card.id);
+      if (owner) return [owner.id, card.id];
+    }
+    return [card.id];
   }
 
   function openDetail(cardId, order = null) {
@@ -5530,6 +5596,12 @@ ${buildFormattedDeckBodyHTML()}
         renderSeekerSheet();
         return;
       }
+      const preview = event.target.closest('[data-seeker-preview]');
+      if (preview) {
+        const seeker = CARD_BY_ID[preview.dataset.seekerPreview];
+        if (seeker) openDetail(seeker.id, detailOrderFor(seeker));
+        return;
+      }
       const tile = event.target.closest('[data-seeker-id]');
       if (tile) {
         selectSeeker(tile.dataset.seekerId);
@@ -5580,6 +5652,20 @@ ${buildFormattedDeckBodyHTML()}
       if (choose) {
         closeSheet('detailSheet');
         openSeekerSheet();
+        return;
+      }
+      const open = event.target.closest('[data-detail-open]');
+      if (open) {
+        const target = CARD_BY_ID[open.dataset.detailOpen];
+        if (target) openDetail(target.id, detailOrderFor(target));
+        return;
+      }
+      const chooseSeeker = event.target.closest('[data-detail-choose-seeker]');
+      if (chooseSeeker) {
+        const seekerId = chooseSeeker.dataset.detailChooseSeeker;
+        closeSheet('detailSheet');
+        closeSheet('seekerSheet');
+        selectSeeker(seekerId);
       }
     });
 

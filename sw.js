@@ -9,7 +9,7 @@
  *
  * Quando mudar manifest/ícones, aumente CACHE_VERSION.
  */
-const CACHE_VERSION = 'v3';
+const CACHE_VERSION = 'v4';
 const CORE_CACHE = `mdb-core-${CACHE_VERSION}`;
 const IMG_CACHE = 'mdb-card-images';   // não versionado: preserva imagens entre atualizações
 const MAX_IMAGES = 250;                // limite de imagens guardadas (as mais antigas saem primeiro)
